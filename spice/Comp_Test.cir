@@ -1,0 +1,88 @@
+.include ../../models/ptm_130_ngspice.spi
+.include ../../lib/SUN_TR_GF130N.spi
+
+.option TNOM=27 GMIN=1e-15 reltol=1e-6 abstol=1e-6
+
+*Parametres
+.param TRF = 10n
+.param TCLK = 100n
+.param C_ERASE = 5
+.param C_EXPOSE = 255
+.param C_CONVERT = 255
+.param C_READ = 5
+
+*- Pulse Width of control signals
+.param PW_ERASE =  {(C_ERASE +1)*TCLK}
+.param PW_EXPOSE =  {(C_EXPOSE +1)*TCLK}
+.param PW_CONVERT =  {(C_CONVERT +1)*TCLK}
+.param PW_READ =  {(C_READ +1)*TCLK}
+
+*- Delay of control signals
+.param TD_ERASE = {TCLK }
+.param TD_EXPOSE = {TD_ERASE + PW_ERASE + TCLK}
+.param TD_CONVERT = {TD_EXPOSE + PW_EXPOSE + TCLK}
+.param TD_READ = {TD_CONVERT + PW_CONVERT + TCLK}
+.param PERIOD = {TD_READ + PW_READ + TCLK}
+
+*- Analog parameters
+.param VDD = 1.5
+.param VADC_MIN = 0.5
+.param VADC_MAX = 1.1
+.param VADC_REF = {VADC_MAX - VADC_MIN}
+.param VADC_LSB = {VADC_REF/256}
+
+VDD VDD VSS dc VDD
+VSS VSS 0 dc 0
+VCOMP VDD VSS dc 1
+
+*----------------------------------------------------------------
+* RAMP
+*----------------------------------------------------------------
+BR1 0 VRAMP I = V(CONVERT)*( 1n*(VADC_MAX - VADC_MIN)/PW_CONVERT)
+CR1 VRAMP 0 1n ic=0
+
+* SPICE freaks out if any node only have current sources and capacitors on it. so insert a resistor to ground
+R1 VRAMP 0 1T
+
+* Model reset as a variable resistor to
+BR2 VRAMP VMIN I=V(ERASE)*V(VRAMP,VMIN)/100
+
+*----------------------------------------------------------------
+*Comparator
+*----------------------------------------------------------------
+.SUBCKT COMPARATOR VCMP_OUT VSTORE VRAMP VDD VSS
+
+*Diff pair
+M1 VG1 VG1 VDD VDD pmos w=0.5u l=0.13u
+M2 VCMP_OUT VG1 VDD VDD pmos w=0.5u l=0.13u
+M3 VG VSTORE VC VC nmos w=0.5u l=0.13u
+M4 VCMP_OUT VRAMP VC VC nmos w=0.5u l=0.13u
+
+*Current mirror
+M5 VC VG2 VSS VSS nmos w=0.5u l=0.13u
+M6 VG2 VG2 VSS VSS nmos w=0.5u l=0.13u
+
+*Current source
+I1 VDD VG2 dc 10u
+.ENDS
+
+*------------------------------------------------------------------
+*DUT
+*------------------------------------------------------------------
+XDUT VCMP_OUT VCOMP VRAMP VDD VSS COMPARATOR
+
+.control
+set color0=white
+set color1=black
+unset askquit
+tran 1n 60u
+
+*plot V(ERASE) V(EXPOSE) V(CONVERT) V(READ)
+*plot V(VRAMP)
+*plot V(DO)
+*plot V(XDUT.VSTORE) V(ERASE) V(EXPOSE) V(CONVERT) V(VRAMP) V(XDUT.VCMP_OUT) V(READ)
+*plot V(VRAMP) V(XDUT.VCMP_OUT)
+
+
+.endc
+.end
