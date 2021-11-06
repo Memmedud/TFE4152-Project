@@ -1,7 +1,7 @@
 # read design
-read_verilog -sv pixelSensorFsm.v
+read_verilog -sv FSM.v
 
-hierarchy -top pixelSensorFsm
+hierarchy -top pixelArrayFsm
 
 # the high-level stuff
 proc; fsm; opt; memory; opt

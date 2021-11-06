@@ -65,7 +65,6 @@ module PIXEL_SENSOR
       if(!cmp) begin
          p_data = DATA;
       end
-
    end
 
    //----------------------------------------------------------------
