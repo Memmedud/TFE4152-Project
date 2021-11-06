@@ -20,10 +20,9 @@ module pixelArrayFsm(
    parameter ERASE=0, EXPOSE=1, CONVERT=2, READ=3, IDLE=4;
    parameter READ0 = 0, READ1 = 1, READ2 = 2, READ3 = 3, NOREAD = 4;
 
-   logic          convert_stop;
-   logic [2:0]    state, next_state;   //States
-   logic [2:0]    readState;
-   integer        counter;
+   logic [2:0]    state, next_state, readState;   //States
+
+   logic [9:0]        counter;
    
    // Control the output signals
    always_ff @(negedge clk ) begin

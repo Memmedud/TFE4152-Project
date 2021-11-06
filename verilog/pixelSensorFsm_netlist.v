@@ -8,7 +8,7 @@ module pixelArrayFsm(clk, reset, start, erase, expose, read, reading, convert);
   (* src = "FSM.v:11" *)
   output convert;
   (* src = "FSM.v:26" *)
-  wire [31:0] counter;
+  wire [16:0] counter;
   (* src = "FSM.v:7" *)
   output erase;
   (* src = "FSM.v:8" *)
@@ -28,7 +28,7 @@ module pixelArrayFsm(clk, reset, start, erase, expose, read, reading, convert);
   (* src = "FSM.v:24" *)
   wire [2:0] state;
   assign convert = 1'h0;
-  assign counter = 32'd0;
+  assign counter = 17'h00000;
   assign erase = 1'h0;
   assign expose = 1'h0;
   assign next_state = 3'h4;

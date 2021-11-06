@@ -103,9 +103,9 @@ module pixelSensor_tb;
    initial
      begin
         $dumpfile("Output.vcd");
-        $dumpvars(0,pixelSensor_tb);
+        $dumpvars(0, pixelSensor_tb);
         
-         #clk_period
+        #clk_period
         reset = 1;
 
         #clk_period  reset=0;
